@@ -1,0 +1,5 @@
+const C='clinic-v27',F=['./','index.html','manifest.json','icon-192.png','icon-512.png','icon-maskable-512.png','MyriadArabic-Regular.woff2','MyriadArabic-Bold.woff2'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(F.map(u=>fetch(new Request(u,{cache:'reload'})).then(r=>r.ok?c.put(u,r):0).catch(()=>0)))));self.skipWaiting()});
+self.addEventListener('activate',e=>e.waitUntil((async()=>{const k=await caches.keys(),old=k.filter(x=>x!=C);await Promise.all(old.map(x=>caches.delete(x)));await self.clients.claim();if(old.length)(await self.clients.matchAll()).forEach(c=>c.postMessage({upd:1}))})()));
+self.addEventListener('fetch',e=>{const q=e.request;if(q.method!='GET'||new URL(q.url).origin!=location.origin)return;
+e.respondWith((async()=>{let r=await caches.match(q,{ignoreSearch:true});if(!r&&q.mode=='navigate')r=await caches.match('index.html');if(r)return r;const n=await fetch(q);if(n.ok){const c=n.clone();caches.open(C).then(ch=>ch.put(q,c))}return n})())});
